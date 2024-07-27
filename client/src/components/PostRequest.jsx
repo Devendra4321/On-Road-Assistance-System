@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, json } from "react-router-dom";
 import "./css/bootstrap.min.css";
 import "./css/owl.carousel.min.css";
 import "./css/font-awesome.min.css";
@@ -69,6 +69,47 @@ const PostRequest = () => {
       console.error("Geolocation is not supported by this browser.");
     }
 
+    async function sendEmail(
+      latitude,
+      longitude,
+      vendorEmail,
+      userEmail,
+      formData
+    ) {
+      try {
+        const response = await fetch(
+          "http://localhost:4000/api/v1/users/sendEmail",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              vendorEmail: vendorEmail,
+              userEmail: userEmail,
+              latitude: latitude,
+              longitude: longitude,
+              complaint: formData.complaint,
+              mobileNo: formData.mobile,
+            }),
+          }
+        );
+
+        console.log(response);
+
+        if (response.status === 200) {
+          console.log("Email sent successfully!");
+          // Handle success, e.g., redirect to another page
+          // alert("Requested Successful");
+          // window.location.href = "view_user_request";
+        } else {
+          console.error("Error sending email");
+        }
+      } catch (error) {
+        console.error("Error sending email:", error.message);
+      }
+    }
+
     async function updateLocationOnServer(latitude, longitude) {
       try {
         const response = await fetch("http://localhost:4000/api/v1/location/", {
@@ -89,6 +130,7 @@ const PostRequest = () => {
         if (response.ok) {
           console.log("Business data posted successfully!");
           // Handle success, e.g., redirect to another page
+          sendEmail(latitude, longitude, vendorEmail, userEmail, formData);
           alert("Requested Successful");
           window.location.href = "view_user_request";
         } else {
