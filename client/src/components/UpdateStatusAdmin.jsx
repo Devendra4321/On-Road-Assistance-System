@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
+import axios from "axios";
 
 import "./css/bootstrap.min.css";
 import "./css/owl.carousel.min.css";
@@ -84,6 +85,61 @@ const UpdateStatusAdmin = () => {
     }
   };
 
+  const [imageUrl, setImageUrl] = useState();
+
+  const checkDocument = async () => {
+    try {
+      const response = await axios.get(
+        `http://localhost:4000/api/v1/business/${id}`
+      );
+      if (response.status === 200) {
+        setImageUrl(response.data.image.url);
+        // console.log(response.data.image.url);
+      } else {
+        console.error("Error fetching business data:", response.statusText);
+      }
+    } catch (error) {
+      console.error("Error fetching business data:", error.message);
+    }
+  };
+
+  const [file, setFile] = useState(null);
+
+  const handleFileChange = async (event) => {
+    setFile("");
+    console.log(id);
+    const selectedFile = event.target.files[0];
+    console.log(selectedFile.name);
+
+    if (selectedFile) {
+      const formData = new FormData();
+      formData.append("image", selectedFile);
+
+      // Debug: Check FormData content
+      console.log(...formData.entries());
+
+      try {
+        const response = await fetch(
+          `http://localhost:4000/api/v1/business/upload/${id}`,
+          {
+            method: "POST",
+            body: formData, // Automatically sets the appropriate
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const responseData = await response.json(); // Assuming API returns JSON
+        console.log("File uploaded successfully", responseData);
+        setFile("File uploaded successfully");
+      } catch (error) {
+        console.error("Error uploading file:", error.message);
+      }
+    }
+  };
+
   return (
     <>
       <Navbar
@@ -106,6 +162,18 @@ const UpdateStatusAdmin = () => {
                 <div className="profile-wrapper-area py-3">
                   <div className="card user-data-card">
                     <div className="card-body">
+                      <div className="d-flex justify-content-end">
+                        <a
+                          type="button"
+                          className="btn btn-danger text-right"
+                          style={{ marginLeft: "0" }}
+                          data-bs-toggle="modal"
+                          data-bs-target="#exampleModal"
+                          onClick={() => checkDocument(business.id)}
+                        >
+                          Check Document
+                        </a>
+                      </div>
                       <form onSubmit={handleUpdateBusiness}>
                         <div className="mb-3">
                           <div className="title mb-2">
@@ -150,6 +218,97 @@ const UpdateStatusAdmin = () => {
                     <Logout />
                   </li>
                 </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="modal fade"
+        id="exampleModal"
+        tabindex="-1"
+        aria-labelledby="exampleModalLabel"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog modal-xl">
+          <div class="modal-content ">
+            <div class="modal-header">
+              <h1 class="modal-title fs-5" id="exampleModalLabel">
+                Check status
+              </h1>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
+            </div>
+            <div class="modal-body">
+              <nav>
+                <div class="nav nav-tabs" id="nav-tab" role="tablist">
+                  <button
+                    class="nav-link active"
+                    id="nav-home-tab"
+                    data-bs-toggle="tab"
+                    data-bs-target="#nav-home"
+                    type="button"
+                    role="tab"
+                    aria-controls="nav-home"
+                    aria-selected="true"
+                  >
+                    Upload Document
+                  </button>
+                  <button
+                    class="nav-link"
+                    id="nav-profile-tab"
+                    data-bs-toggle="tab"
+                    data-bs-target="#nav-profile"
+                    type="button"
+                    role="tab"
+                    aria-controls="nav-profile"
+                    aria-selected="false"
+                    onClick={() => checkDocument()}
+                  >
+                    Check Document
+                  </button>
+                </div>
+              </nav>
+              <div class="tab-content" id="nav-tabContent">
+                <div
+                  class="tab-pane fade show active"
+                  id="nav-home"
+                  role="tabpanel"
+                  aria-labelledby="nav-home-tab"
+                  tabindex="0"
+                >
+                  <div className="my-4 mx-5">
+                    <label>Driving License:</label>
+                    <div className="col-12 mb-3 mx-3 mt-2">
+                      <input type="file" onChange={handleFileChange} />
+                      {file && <p className="text-danger mt-2">{file}</p>}
+                    </div>
+                  </div>
+                </div>
+                <div
+                  class="tab-pane fade"
+                  id="nav-profile"
+                  role="tabpanel"
+                  aria-labelledby="nav-profile-tab"
+                  tabindex="0"
+                >
+                  {imageUrl && (
+                    <div className="my-4 mx-5">
+                      <h4>Driving License</h4>
+                      <img src={imageUrl} style={{ width: "20rem" }}></img>
+                    </div>
+                  )}
+                  {!imageUrl && (
+                    <h5 className="text-danger text-center my-5">
+                      Documents not uploaded by mechanic!
+                    </h5>
+                  )}
+                </div>
               </div>
             </div>
           </div>

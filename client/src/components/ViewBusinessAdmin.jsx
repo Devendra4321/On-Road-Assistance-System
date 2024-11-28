@@ -273,6 +273,7 @@ const ViewBusinessAdmin = () => {
                       <td>{business.lat} </td>
                       <td>{business.long} </td>
                       <td style={{ color: "green" }}>{business.status} </td>
+
                       <td>
                         <a
                           className="btn btn-danger"
