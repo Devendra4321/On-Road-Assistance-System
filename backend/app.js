@@ -4,6 +4,7 @@ const morgan = require("morgan");
 const mongoose = require("mongoose");
 mongoose.pluralize(null);
 const cors = require("cors");
+const bodyParser = require("body-parser");
 
 const fs = require("fs").promises;
 const path = require("path");
@@ -56,6 +57,8 @@ app.options("*", cors());
 
 //middleware
 app.use(express.json());
+app.use(bodyParser.json());
+app.use(express.urlencoded({ extended: true }));
 
 //app.use(bodyParser.json());
 app.use(morgan("tiny"));
@@ -92,6 +95,10 @@ mongoose
   .catch((err) => {
     console.log(err);
   });
+
+app.get("/api/v1/getkey", (req, res) =>
+  res.status(200).json({ key: process.env.ROZARPAY_ID })
+);
 
 //Server
 app.listen(4000, () => {

@@ -28,6 +28,7 @@ const UpdateStatus = () => {
 
   const [editedBusiness, setEditedBusiness] = useState({
     status: "",
+    paymentStatus: "",
   });
 
   const token = localStorage.getItem("token");
@@ -40,8 +41,10 @@ const UpdateStatus = () => {
         );
         if (response.ok) {
           const data = await response.json();
+          console.log(data);
           setEditedBusiness({
             status: data.status,
+            paymentStatus: data.paymentStatus,
           });
         } else {
           console.error("Error fetching User data:", response.statusText);
@@ -110,20 +113,32 @@ const UpdateStatus = () => {
                   <div className="card user-data-card">
                     <div className="card-body">
                       <form onSubmit={handleUpdateBusiness}>
-                        <div className="mb-3">
-                          <div className="title mb-2">
-                            <span>Update Status</span>
+                        <div className="d-flex">
+                          <div className="mb-3 mx-4">
+                            <div className="title mb-2">
+                              <span>Update Status</span>
+                            </div>
+                            <select
+                              name="status"
+                              id="status"
+                              value={editedBusiness.status}
+                              onChange={handleInputChange}
+                            >
+                              <option value="Pending">Pending</option>
+                              <option value="Accept">Accept</option>
+                              <option value="Reject">Reject</option>
+                            </select>
                           </div>
-                          <select
-                            name="status"
-                            id="status"
-                            value={editedBusiness.status}
-                            onChange={handleInputChange}
-                          >
-                            <option value="Pending">Pending</option>
-                            <option value="Accept">Accept</option>
-                            <option value="Reject">Reject</option>
-                          </select>
+                          <div className="mb-3 mx-4">
+                            <div className="title mb-2">
+                              <span>Payment status</span>
+                            </div>
+                            {editedBusiness.paymentStatus == true ? (
+                              <p>Done</p>
+                            ) : (
+                              <p className="text-danger">Pending</p>
+                            )}
+                          </div>
                         </div>
 
                         <button className="btn btn-success w-100" type="submit">
